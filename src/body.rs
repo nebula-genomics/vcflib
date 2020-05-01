@@ -104,7 +104,7 @@ impl Display for AltType {
 #[derive(Debug, PartialEq)]
 pub enum QualType {
     Missing,
-    Integer(u32),
+    Float(f64),
 }
 
 impl FromStr for QualType {
@@ -117,7 +117,7 @@ impl FromStr for QualType {
         let qual = if qual_str == "." {
             QualType::Missing
         } else {
-            QualType::Integer(qual_str.parse::<u32>()?)
+            QualType::Float(qual_str.parse::<f64>()?)
         };
         Ok(qual)
     }
@@ -127,7 +127,7 @@ impl Display for QualType {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         match self {
             QualType::Missing => write!(f, "."),
-            QualType::Integer(n) => write!(f, "{}", n),
+            QualType::Float(n) => write!(f, "{}", n),
         }
     }
 }
