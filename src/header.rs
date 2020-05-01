@@ -77,6 +77,17 @@ pub enum HeaderLine {
     },
 
     /// Example:
+    /// ##GATKCommandLine.ApplyRecalibration=<ID=ApplyRecalibration,Version=exported,Date="Thu Mar 26 11:35:47 CST 2020",Epoch=1585193747281,CommandLineOptions="...">
+    GATK {
+        header_type: String,
+        id: String,
+        version: String,
+        date: String,
+        epoch: String,
+        command_line_options: String,
+    },
+
+    /// Example:
     /// ##INFO=<ID=ID,Number=number,Type=type,Description="description",Source="source",Version="version">
     Info {
         id: String,
@@ -186,6 +197,15 @@ impl FromStr for HeaderLine {
                 typ: FormatType::new(payload_parts.get("Type").copied())?,
                 description: get_map_value(&payload_parts, "Description")?,
             },
+            // Match all headers starting with GATKCommandLine
+            header if header.starts_with("GATKCommandLine") => HeaderLine::GATK {
+                header_type: header.to_string(),
+                id: get_map_value(&payload_parts, "ID")?,
+                version: get_map_value(&payload_parts, "Version")?,
+                date: get_map_value(&payload_parts, "Date")?,
+                epoch: get_map_value(&payload_parts, "Epoch")?,
+                command_line_options: get_map_value(&payload_parts, "CommandLineOptions")?,
+            },
             "INFO" => HeaderLine::Info {
                 id: get_map_value(&payload_parts, "ID")?,
                 number: Number::new(payload_parts.get("Number").copied())?,
@@ -281,6 +301,18 @@ impl Display for HeaderLine {
                 f,
                 "##FORMAT=<ID={},Number={},Type={},Description=\"{}\">",
                 id, number, typ, description
+            ),
+            HeaderLine::GATK {
+                header_type,
+                id,
+                version,
+                date,
+                epoch,
+                command_line_options,
+            } => write!(
+                f,
+                "##{}=<ID={},Version={},Date=\"{}\",Epoch={},CommandLineOptions=\"{}\">",
+                header_type, id, version, date, epoch, command_line_options
             ),
             HeaderLine::Info {
                 id,
