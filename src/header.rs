@@ -175,6 +175,10 @@ impl FromStr for HeaderLine {
                 description: get_map_value(&payload_parts, "Description")?,
             },
             "assembly" => HeaderLine::Assembly(get_map_value(&payload_parts, OTHER_KEY)?),
+            "bcftools_concatCommand" => HeaderLine::Other {
+                key: header_type.to_string(),
+                value: header_payload.to_string(),
+            },
             "contig" => {
                 let id = get_map_value(&payload_parts, "ID")?;
                 let species = get_map_value(&payload_parts, "species").ok();
