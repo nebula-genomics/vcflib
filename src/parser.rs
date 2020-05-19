@@ -2,6 +2,7 @@ use crate::{
     body::DataLine,
     header::{parse_column_names, parse_version, Header, HeaderLine},
 };
+use flate2::read::GzDecoder;
 use std::{
     io,
     io::{BufRead, BufReader, Read, Write},
@@ -21,9 +22,10 @@ pub struct VCFReader<R: BufRead> {
 
 pub const FIXED_COLUMNS: &[&str] = &["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO"];
 
-impl<R: Read> VCFParser<BufReader<R>> {
+impl<R: Read> VCFParser<BufReader<GzDecoder<R>>> {
     pub fn new(read: R) -> anyhow::Result<Self> {
-        let mut reader = BufReader::new(read);
+        let decoder = GzDecoder::new(read);
+        let mut reader = BufReader::new(decoder);
 
         let mut line = String::new();
         let mut version = "".to_string();
